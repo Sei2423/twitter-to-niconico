@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ぬるぽ系じぇねれーたー</title>
+
+<style>
+*{
+    font-family:"Verdana", "游ゴシック", "YuGothic", "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", "メイリオ", "Meiryo", sans-serif;;
+}
+#hiragana_or_katakana {
+    display: none;
+}
+.button {
+    border-radius: 3px;
+    background-color: #5050c0;
+    text-align: center;
+    padding: 0.3em 0;
+    font-size: 2em;
+    display: block;
+    width: 100%;
+    border: none;
+    margin-bottom: 30px;
+}
+.hiragana_or_katakana:after {
+    content: "カタカナにする";
+}
+#hiragana_or_katakana:checked + label > .hiragana_or_katakana:after {
+    content: "ひらがなにする";
+}
+.button:hover {
+    background-color: #3030a0;
+}
+.button:active {
+    color: gray;
+}
+.display{
+    font-size: 5em;
+    font-weight: bold;
+    text-align: center;
+    margin: 1em 0;
+}
+</style>
+</head>
+<body>
+
+<input type="checkbox" id="hiragana_or_katakana">
+<label for="hiragana_or_katakana">
+    <p class="button hiragana_or_katakana"></p>
+</label>
+<div class="display">ぬるぽ</div>
+<button onclick="copyText()" class="button">ぬるぽをコピー</button>
+<button onclick="randomNullpo()" class="button">ランダムぬるぽ</button>
+<p>コンマ、読点、スペースｶﾞｯ区切り文字</p>
+<p>ひらがなのぬ: <input id="Hnu" value="め ぬ ゐ" placeholder="ぬ"></p>
+<p>ひらがなのる: <input id="Hru" value="る ろ ゑ" placeholder="る"></p>
+<p>ひらがなのぽ: <input id="Hpo" value="ぽ ぼ ほ は ば ぱ け げ け゜ け゚" placeholder="ぽ"></p>
+<br>
+<p>カタカナのヌ: <input id="Knu" value="ヌ ス 又" placeholder="ヌ"></p>
+<p>カタカナのル: <input id="Kru" value="ル ﾉﾚ ⼉" placeholder="ル"></p>
+<p>カタカナのポ: <input id="Kpo" value="ポ ボ ホ 朩゚ 朩゙ 朩 朩゜ 朩゛" placeholder="ポ"></p>
+<script>
+const $Hnu = document.getElementById('Hnu');
+const $Hru = document.getElementById('Hru');
+const $Hpo = document.getElementById('Hpo');
+const $Knu = document.getElementById('Knu');
+const $Kru = document.getElementById('Kru');
+const $Kpo = document.getElementById('Kpo');
+const $display = document.getElementsByClassName("display")[0];
+
+function rndChoose(list) {
+    return list[Math.random() * list.length | 0]
+}
+function randomNullpo() {
+    const is_hiragana = !document.getElementById('hiragana_or_katakana').checked;
+    let  nu, ru, po;
+    if(is_hiragana) {
+        nu = rndChoose($Hnu.value.split(/[,、\s]/));
+        ru = rndChoose($Hru.value.split(/[,、\s]/));
+        po = rndChoose($Hpo.value.split(/[,、\s]/));
+    } else {
+        nu = rndChoose($Knu.value.split(/[,、\s]/));
+        ru = rndChoose($Kru.value.split(/[,、\s]/));
+        po = rndChoose($Kpo.value.split(/[,、\s]/));
+    }
+    $display.innerHTML = nu + ru + po
+}
+function copyText() {
+
+    var inputText = $display.innerHTML;
+
+    if(inputText.trim() !== "") {
+
+        var tempTextArea = document.createElement("textarea");
+        tempTextArea.value = inputText;
+        document.body.appendChild(tempTextArea);
+        
+        tempTextArea.select();
+        document.execCommand("copy");
+        
+        document.body.removeChild(tempTextArea);
+        
+        alert(inputText + "をコピーしましたｶﾞｯ！！");
+    }
+}
+</script>
+
+</body>
+</html>
