@@ -53,6 +53,13 @@
 <div class="display">ぬるぽ</div>
 <button onclick="copyText()" class="button">ぬるぽをコピー</button>
 <button onclick="randomNullpo()" class="button">ランダムぬるぽ</button>
+<a
+  href="http://twitter.com/share?url=yurukei-career.com&text=ぬるぽ\n\nhttps://sei2423.github.io/twitter-to-niconico/%E3%81%AC%E3%82%8B%E3%81%BD.html&hashtags=ぬるぽじぇねれーたー"
+  target="_blank"
+  rel="nofollow noopener noreferrer"
+  class="button"
+  id="twitter">Twitterで共有</a
+>
 <p>コンマ、読点、スペースｶﾞｯ区切り文字</p>
 <p>ひらがなのぬ: <input id="Hnu" value="め ぬ ゐ" placeholder="ぬ"></p>
 <p>ひらがなのる: <input id="Hru" value="る ろ ゑ" placeholder="る"></p>
@@ -69,7 +76,8 @@ const $Knu = document.getElementById('Knu');
 const $Kru = document.getElementById('Kru');
 const $Kpo = document.getElementById('Kpo');
 const $display = document.getElementsByClassName("display")[0];
-
+const $twitter = document.getElementById('twitter');
+    
 function rndChoose(list) {
     return list[Math.random() * list.length | 0]
 }
@@ -85,7 +93,9 @@ function randomNullpo() {
         ru = rndChoose($Kru.value.split(/[,、\s]/));
         po = rndChoose($Kpo.value.split(/[,、\s]/));
     }
-    $display.innerHTML = nu + ru + po
+    let nurupo = nu + ru + po;
+    $display.innerHTML = nurupo;
+    $twitter.href = 'http://twitter.com/share?url=yurukei-career.com&text=' + nurupo + '\\n\\nhttps://sei2423.github.io/twitter-to-niconico/%E3%81%AC%E3%82%8B%E3%81%BD.html&hashtags=ぬるぽじぇねれーたー';
 }
 function copyText() {
 
