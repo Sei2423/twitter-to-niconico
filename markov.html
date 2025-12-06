@@ -1,0 +1,54 @@
+<html>
+<head></head>
+<body>
+    <p>最初の文字（何もなければ改行から）</p>
+    <input id="fstchar">
+    <p>文字数</p>
+    <input type="number" id="length" value="120">
+    <p>文章</p>
+    <textarea id="text" style="width: 100%; height: 300px;"></textarea>
+    <button onclick="markov();">do markov</button>
+    <div id="result">
+
+    </div>
+    <script>
+const $text = document.querySelector("textarea#text");
+const $result = document.querySelector("div#result");
+const $1stchar = document.querySelector("input#fstchar");
+const $length = document.querySelector("input#length");
+function markov() {
+    const list=$text.value.split('');
+
+    const markov = {}
+
+    for(let i=0;i<list.length;i++){
+        const curr = list[i],
+            next = list[i+1] || '';
+
+        if(markov[curr]) {
+            markov[curr].push(next);
+        } else {
+            markov[curr] = [next];
+        }
+    }
+
+    let counter = 0;
+
+    let str = $1stchar.value || "\n";
+    while(1) {
+        if(!str) break;
+        const last_char = str[str.length-1];
+        const pred_char_list = markov[last_char];
+        const pred_char = pred_char_list[Math.random() * pred_char_list.length | 0];
+        if(!pred_char) break;
+        str += pred_char;
+
+        if(++counter % 100 == 0) console.log(counter);
+        if(counter>+$length.value) break; //500は文字数
+    }
+    console.log(str || "Error");
+    $result.innerText = str;
+}
+    </script>
+</body>
+</html>
