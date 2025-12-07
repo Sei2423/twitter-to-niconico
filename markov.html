@@ -39,7 +39,7 @@
             </div>
             <label>
                 <span>実行: </span>
-                <input type="checkbox" id="dash" onclick="dashMarkov()">
+                <input type="checkbox" id="dash" style="margin-right: 20px;" onclick="dashMarkov()">
             </label>
             <style>
                 label:has(input#isRegexp:checked) + div{
@@ -49,6 +49,10 @@
                     display: none;
                 }
             </style>
+            <label>
+                <span>1tick(ms): </span>
+                <input type="number" id="tick" value="10">
+            </label>
             <br>
             <label>
                 <span>ハイライト: </span>
@@ -66,6 +70,7 @@ const $search = document.querySelector("input#search");
 const $regexp = document.querySelector("input#regexp");
 const $flag = document.querySelector("input#flag");
 const $dash = document.querySelector("input#dash");
+const $tick = document.querySelector("input#tick");
 
 const $text = document.querySelector("textarea#text");
 const $result = document.querySelector("div#result");
@@ -114,12 +119,12 @@ function dashMarkov() {
     if(!$isRegexp.checked) {
         // 通常検索
         const se = $search.value;
-        if(!result.includes(se)) setTimeout(dashMarkov, 10);
+        if(!result.includes(se)) setTimeout(dashMarkov, +$tick.value);
         else $result.innerHTML = $result.innerHTML.replaceAll(se, '<span class="highlights">' + se + '</span>');
     } else {
         // 正規表現検索
         const re = new RegExp($regexp.value, $flag.value);
-        if(!re.test(result)) setTimeout(dashMarkov, 10);
+        if(!re.test(result)) setTimeout(dashMarkov, +$tick.value);
         else highlightElement($result, re);
     }
 }
