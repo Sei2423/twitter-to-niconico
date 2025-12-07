@@ -1,0 +1,177 @@
+<html>
+<head>
+    <title>一文字マルコフ連鎖</title>
+    <style>
+        details:has(input#highlights:checked)+hr+div>.highlights {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <p>最初の文字（何もなければ改行から）</p>
+    <input id="fstchar" value="吾">
+    <p>文字数</p>
+    <input type="number" id="length" value="120">
+    <p>文章</p>
+    <textarea id="text" style="width: 100%; height: 300px;">
+
+吾輩は猫である。名前はまだ無い。
+どこで生れたかとんと見当がつかぬ。何でも薄暗いじめじめした所でニャーニャー泣いていた事だけは記憶している。吾輩はここで始めて人間というものを見た。しかもあとで聞くとそれは書生という人間中で一番獰悪な種族であったそうだ。この書生というのは時々我々を捕えて煮て食うという話である。しかしその当時は何という考もなかったから別段恐しいとも思わなかった。ただ彼の掌に載せられてスーと持ち上げられた時何だかフワフワした感じがあったばかりである。掌の上で少し落ちついて書生の顔を見たのがいわゆる人間というものの見始であろう。この時妙なものだと思った感じが今でも残っている。第一毛をもって装飾されべきはずの顔がつるつるしてまるで薬缶だ。その後猫にもだいぶ逢ったがこんな片輪には一度も出会わした事がない。のみならず顔の真中があまりに突起している。そうしてその穴の中から時々ぷうぷうと煙を吹く。どうも咽せぽくて実に弱った。これが人間の飲む煙草というものである事はようやくこの頃知った。
+    </textarea>
+    <hr>
+    <button onclick="markov();" id="run" style="margin:10px; padding:5px;">do markov</button>
+    <details>
+        <summary>一致するまでモード</summary>
+        <div>
+            <label>
+                <span>正規表現モード: </span>
+                <input type="checkbox" id="isRegexp">
+            </label>
+            <div>
+                <span>検索文字: </span>
+                <input id="search" value="吾輩は猫である。">
+            </div>
+            <div>
+                <span>正規表現: </span>
+                <input id="regexp" value="^吾輩は[^。\n]{1,5}である。">
+                <span>フラグ</span>
+                <input id="flag" value="mg">
+            </div>
+            <label>
+                <span>実行: </span>
+                <input type="checkbox" id="dash" onclick="dashMarkov()">
+            </label>
+            <style>
+                label:has(input#isRegexp:checked) + div{
+                    display: none;
+                }
+                label:has(input#isRegexp:not(:checked)) + div + div{
+                    display: none;
+                }
+            </style>
+            <br>
+            <label>
+                <span>ハイライト: </span>
+                <input type="checkbox" id="highlights" checked>
+            </label>
+        </div>
+    </details>
+    <hr>
+    <div id="result" style="min-height: 500px;">
+
+    </div>
+    <script>
+const $isRegexp = document.querySelector("input#isRegexp");
+const $search = document.querySelector("input#search");
+const $regexp = document.querySelector("input#regexp");
+const $flag = document.querySelector("input#flag");
+const $dash = document.querySelector("input#dash");
+
+const $text = document.querySelector("textarea#text");
+const $result = document.querySelector("div#result");
+const $1stchar = document.querySelector("input#fstchar");
+const $length = document.querySelector("input#length");
+function markov() {
+    const list=$text.value.split('');
+
+    const markov = {}
+
+    for(let i=0;i<list.length;i++){
+        const curr = list[i],
+            next = list[i+1] || '';
+
+        if(markov[curr]) {
+            markov[curr].push(next);
+        } else {
+            markov[curr] = [next];
+        }
+    }
+
+    let counter = 0;
+
+    let str = $1stchar.value || "\n";
+    while(1) {
+        if(!str) break;
+        const last_char = str[str.length-1];
+        const pred_char_list = markov[last_char];
+        const pred_char = pred_char_list[Math.random() * pred_char_list.length | 0];
+        if(!pred_char) break;
+        str += pred_char;
+
+        counter++;
+        // if(counter % 100 == 0) console.log(counter);
+        if(counter>+$length.value) break; //500は文字数
+    }
+    str || console.log("Error");
+    $result.innerText = str;
+}
+
+function dashMarkov() {
+    if(!$dash.checked) return 0;
+
+    markov();
+    const result = $result.innerText;
+    if(!$isRegexp.checked) {
+        // 通常検索
+        const se = $search.value;
+        if(!result.includes(se)) setTimeout(dashMarkov, 10);
+        else $result.innerHTML = $result.innerHTML.replaceAll(se, '<span class="highlights">' + se + '</span>');
+    } else {
+        // 正規表現検索
+        const re = new RegExp($regexp.value, $flag.value);
+        if(!re.test(result)) setTimeout(dashMarkov, 10);
+        else highlightElement($result, re);
+    }
+}
+
+
+function highlightElement(root, regex) {
+    const walker = document.createTreeWalker(
+        root,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+    );
+
+    const textNodes = [];
+
+    while (walker.nextNode()) {
+        textNodes.push(walker.currentNode);
+    }
+
+    for (const node of textNodes) {
+        const text = node.nodeValue;
+
+        regex.lastIndex = 0;
+
+        const matches = [...text.matchAll(regex)];
+        if (matches.length === 0) continue;
+
+        const frag = document.createDocumentFragment();
+        let lastIndex = 0;
+
+        for (const match of matches) {
+            const start = match.index;
+            const end = start + match[0].length;
+
+            frag.appendChild(document.createTextNode(text.slice(lastIndex, start)));
+
+            const span = document.createElement("span");
+            span.className = "highlights";
+            span.textContent = match[0];
+            frag.appendChild(span);
+
+            lastIndex = end;
+        }
+
+        frag.appendChild(document.createTextNode(text.slice(lastIndex)));
+
+        node.parentNode.replaceChild(frag, node);
+    }
+}
+
+
+    </script>
+</body>
+
+</html>
